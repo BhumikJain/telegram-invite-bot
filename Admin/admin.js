@@ -55,7 +55,7 @@ function handleAdminAuthentication(ctx, adminState, allowedChatIds) {
     if (currentState && currentState.step === 'prompt_id') {
         const adminId = process.env.ADMIN_ID;
         const enteredId = ctx.message.text.trim();
-
+        console.log(adminId)
         if (enteredId === adminId) {
             // ID is correct, prompt for password
             adminState[userId].step = 'prompt_password';

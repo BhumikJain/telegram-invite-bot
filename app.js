@@ -16,8 +16,9 @@ const {
   adminMenuKeyboard,
 } = require("./Admin/admin");
 
-const BOT_TOKEN = "6945219875:AAGTT43vzuo_ychTX_w2HCdD_og2cSb5AcM";
-const CHANNEL_ID = -1002092994311;
+
+const BOT_TOKEN = process.env.BOT_TOKEN;
+const CHANNEL_ID = process.env.CHANNEL_ID;
 
 const bot = new Telegraf(BOT_TOKEN);
 
@@ -73,7 +74,6 @@ const adminState = {};
 let activeMode = null;
 
 // Array of different start messages
-
 const startMessages = [
   {
     message:
