@@ -1,5 +1,5 @@
-const User = require('../userModel');
-const moment = require('moment-timezone');
+import User from '../models/userModel.js'
+import moment from 'moment-timezone'
 
 
 // FUNCTION TO UPDATE LAST INTERACTION TIME OF THE USER 
@@ -60,4 +60,4 @@ async function updateUserStatus(userId) {
 }
 
 
-module.exports = { updateLastInteraction, checkInactiveUsers, updateUserStatus };
+export  { updateLastInteraction, checkInactiveUsers, updateUserStatus };

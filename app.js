@@ -1,38 +1,22 @@
-const { Telegraf, Markup } = require("telegraf");
-require("dotenv").config();
-const axios = require("axios");
-const moment = require("moment-timezone");
-const mongoose = require("mongoose");
-const User = require("./userModel");
+import { Telegraf } from "telegraf";
+import dotenv from "dotenv";
+import axios from "axios";
+// import moment from "moment-timezone";
+import User from "./models/userModel.js";
+dotenv.config(".env");
 
-const {
+import {
   updateLastInteraction,
   checkInactiveUsers,
   updateUserStatus,
-} = require("./Admin/statsfunction");
+} from "./Admin/statsfunction.js";
 
-const {
-  handleAdminAuthentication,
-  adminMenuKeyboard,
-} = require("./Admin/admin");
+import { handleAdminAuthentication, adminMenuKeyboard } from "./Admin/admin.js";
 
-const BOT_TOKEN = "6945219875:AAGTT43vzuo_ychTX_w2HCdD_og2cSb5AcM";
-const CHANNEL_ID = -1002092994311;
+const BOT_TOKEN = process.env.BOT_TOKEN;
+const CHANNEL_ID = process.env.CHANNEL_ID;
 
 const bot = new Telegraf(BOT_TOKEN);
-
-// CONNECT TO DATABASE
-mongoose
-  .connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => {
-    console.log("Connected to MongoDB");
-  })
-  .catch((err) => {
-    console.error("Error connecting to MongoDB:", err);
-  });
 
 // UPADTE INTERACTION TIME ON EVERY MESSAGE SEND BY THE USER
 bot.use(async (ctx, next) => {
@@ -59,12 +43,7 @@ bot.use(async (ctx, next) => {
 });
 
 // MENU KEYBOARD
-const menuKeyboard = Markup.keyboard([
-  ["ADMIN"],
-  ["INVITE", "BALANCE"],
-  ["HELP & SUPPORT"],
-  ["ADMIN PANEL"],
-]).resize();
+import { menuKeyboard } from "./startMessage/menuKeyboard.js";
 
 // HANDLE THE FUNCTION FOR WHEN THE USER IN ADMIN SECTION
 const adminState = {};
@@ -74,60 +53,7 @@ let activeMode = null;
 
 // Array of different start messages
 
-const startMessages = [
-  {
-    message:
-      "Ｈｅｌｌｏ ${username}! Ｙｏｕ ｈａｖｅ ｔｏ ｊｏｉｎ ｔｈｅｓｅ ｃｈａｎｎｅｌｓ ｔｏ ｕｓｅ ｔｈｉｓ ｂｏｔ\n\n<a href='https://t.me/cheemda_bot_testing_channel'>@cheemda_bot_testing_channel</a>",
-    keyboard: menuKeyboard,
-  },
-
-  {
-    message:
-      "ℍ𝕖𝕝𝕝𝕠 ${username}! 𝕐𝕠𝕦 𝕙𝕒𝕧𝕖 𝕥𝕠 𝕛𝕠𝕚𝕟 𝕥𝕙𝕖𝕤𝕖 𝕔𝕙𝕒𝕟𝕟𝕖𝕝𝕤 𝕥𝕠 𝕦𝕤𝕖 𝕥𝕙𝕚𝕤 𝕓𝕠𝕥\n\n<a href='https://t.me/cheemda_bot_testing_channel'>@cheemda_bot_testing_channel</a>",
-    keyboard: menuKeyboard,
-  },
-  {
-    message:
-      "H̥ͦe̥ͦl̥ͦl̥ͦo̥ͦ ${username}!̥ͦ ̥ͦY̥ͦo̥ͦu̥ͦ ̥ͦh̥ͦḁͦv̥ͦe̥ͦ ̥ͦt̥ͦo̥ͦ ̥ͦj̥ͦo̥ͦi̥ͦn̥ͦ ̥ͦt̥ͦh̥ͦe̥ͦs̥ͦe̥ͦ ̥ͦc̥ͦh̥ͦḁͦn̥ͦn̥ͦe̥ͦl̥ͦs̥ͦ ̥ͦt̥ͦo̥ͦ ̥ͦu̥ͦs̥ͦe̥ͦ ̥ͦt̥ͦh̥ͦi̥ͦs̥ͦ ̥ͦb̥ͦo̥ͦt̥ͦ\n\n<a href='https://t.me/cheemda_bot_testing_channel'>@cheemda_bot_testing_channel</a>",
-    keyboard: menuKeyboard,
-  },
-  {
-    message:
-      "нєℓℓσ ${username}! уσυ нανє тσ נσιи тнєѕє ¢нαииєℓѕ тσ υѕє тнιѕ вσт\n\n<a href='https://t.me/cheemda_bot_testing_channel'>@cheemda_bot_testing_channel</a>",
-    keyboard: menuKeyboard,
-  },
-  {
-    message:
-      "ℌ𝔢𝔩𝔩𝔬 ${username}! 𝔜𝔬𝔲 𝔥𝔞𝔳𝔢 𝔱𝔬 𝔧𝔬𝔦𝔫 𝔱𝔥𝔢𝔰𝔢 𝔠𝔥𝔞𝔫𝔫𝔢𝔩𝔰 𝔱𝔬 𝔲𝔰𝔢 𝔱𝔥𝔦𝔰 𝔟𝔬𝔱\n\n<a href='https://t.me/cheemda_bot_testing_channel'>@cheemda_bot_testing_channel</a>",
-
-    keyboard: menuKeyboard,
-  },
-  {
-    message:
-      "ʜᴇʟʟᴏ ${username}! ʏᴏᴜ ʜᴀᴠᴇ ᴛᴏ ᴊᴏɪɴ ᴛʜᴇsᴇ ᴄʜᴀɴɴᴇʟs ᴛᴏ ᴜsᴇ ᴛʜɪs ʙᴏᴛ\n\n<a href='https://t.me/cheemda_bot_testing_channel'>@cheemda_bot_testing_channel</a>",
-    keyboard: menuKeyboard,
-  },
-  {
-    message:
-      "H͎e͎l͎l͎o͎ ${username}!͎ ͎Y͎o͎u͎ ͎h͎a͎v͎e͎ ͎t͎o͎ ͎j͎o͎i͎n͎ ͎t͎h͎e͎s͎e͎ ͎c͎h͎a͎n͎n͎e͎l͎s͎ ͎t͎o͎ ͎u͎s͎e͎ ͎t͎h͎i͎s͎ ͎b͎o͎t͎\n\n<a href='https://t.me/cheemda_bot_testing_channel'>@cheemda_bot_testing_channel</a>",
-    keyboard: menuKeyboard,
-  },
-  {
-    message:
-      "ⱧɆⱠⱠØ ${username}! ɎØɄ Ⱨ₳VɆ ₮Ø JØł₦ ₮ⱧɆ₴Ɇ ₵Ⱨ₳₦₦ɆⱠ₴ ₮Ø Ʉ₴Ɇ ₮Ⱨł₴ ฿Ø₮\n\n<a href='https://t.me/cheemda_bot_testing_channel'>@cheemda_bot_testing_channel</a>",
-    keyboard: menuKeyboard,
-  },
-  {
-    message:
-      "ɦɛʟʟօ ${username}! ʏօʊ ɦǟʋɛ ȶօ ʝօɨռ ȶɦɛֆɛ ƈɦǟռռɛʟֆ ȶօ ʊֆɛ ȶɦɨֆ ɮօȶ\n\n<a href='https://t.me/cheemda_bot_testing_channel'>@cheemda_bot_testing_channel</a>",
-    keyboard: menuKeyboard,
-  },
-  {
-    message:
-      "H͓̽e͓̽l͓̽l͓̽o͓̽ ${username!͓̽ ͓̽Y͓̽o͓̽u͓̽ ͓̽h͓̽a͓̽v͓̽e͓̽ ͓̽t͓̽o͓̽ ͓̽j͓̽o͓̽i͓̽n͓̽ ͓̽t͓̽h͓̽e͓̽s͓̽e͓̽ ͓̽c͓̽h͓̽a͓̽n͓̽n͓̽e͓̽l͓̽s͓̽ ͓̽t͓̽o͓̽ ͓̽u͓̽s͓̽e͓̽ ͓̽t͓̽h͓̽i͓̽s͓̽ ͓̽b͓̽o͓̽t͓̽\n\n<a href='https://t.me/cheemda_bot_testing_channel'>@cheemda_bot_testing_channel</a>",
-    keyboard: menuKeyboard,
-  },
-];
+import { startMessages } from "./startMessage/messages.js";
 
 // HANDLE /START COMMAND
 
@@ -189,7 +115,10 @@ bot.action("check", async (ctx) => {
       ctx.reply("Please join the required channel to proceed.");
     } else {
       // User is a member of the channel, send a message with keyboard
-      ctx.reply("You have successfully joined the required channel.",menuKeyboard)
+      ctx.reply(
+        "You have successfully joined the required channel.",
+        menuKeyboard
+      );
     }
   } catch (error) {
     console.error("Error checking membership:", error);
@@ -247,7 +176,7 @@ bot.hears("INVITE", async (ctx) => {
 
   try {
     const isChannelMember = await checkChannelMembership(userId, CHANNEL_ID);
-   
+
     if (!isChannelMember) {
       ctx.reply("You need to join the required channel to access this option.");
     } else {

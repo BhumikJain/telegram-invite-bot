@@ -1,4 +1,4 @@
-const { Telegraf, Markup } = require('telegraf');
+import { Telegraf, Markup } from 'telegraf'
 
 
 // CONNECT THE TELEGRAF TO BOT
@@ -81,4 +81,4 @@ function handleAdminAuthentication(ctx, adminState, allowedChatIds) {
 }
 
 
-module.exports = { handleAdminAuthentication };
+export  { handleAdminAuthentication ,adminMenuKeyboard  };
